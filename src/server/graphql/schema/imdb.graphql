@@ -1,0 +1,64 @@
+
+# IMDB
+
+type Review {
+  id: ID!
+  text: String
+  movie: Movie
+}
+
+type Movie {
+  id: ID!
+  title: String
+  rating: Float
+  trailerURL: String
+  reviews: [Review]
+  # Length of movie in minutes
+  length: Int
+  aired: Boolean
+
+  actors: [Person]
+  writers: [Person]
+}
+
+enum MovieSorting {
+  RATING
+  DATE_DESC
+  DATE_ASC
+}
+
+input MovieFilter {
+  genre: String
+  dateAfter: String
+  search: String
+  hitMoviesOnly: Boolean
+}
+
+type Person {
+  id: ID!
+  firstName: String
+  lastName: String
+  writtenMovies: [Movie]
+  actedMovies: [Movie]
+}
+
+type Query {
+  movies(filter: MovieFilter sortBy: MovieSorting): [Movie]
+  people(search: String): [Person]
+}
+
+type WatchlistAddResult {
+  success: Boolean
+  movie: Movie
+}
+
+type Mutation {
+  #IMDB
+  addToWatchlist(movieID: ID): WatchlistAddResult
+  reviewMovie(text: String, movieID: ID): Boolean
+}
+
+type Subscription {
+  addToWatchlistSubscribe: WatchlistAddResult
+}
+
