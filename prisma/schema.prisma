@@ -56,6 +56,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   reviews       Review[]
+  views         MovieViews[]
 }
 
 model VerificationToken {
@@ -69,8 +70,8 @@ model VerificationToken {
 model Review {
   id      String @id @default(cuid())
   text    String
-  userId  String
-  user    User   @relation(fields: [userId], references: [id])
+  userId  String?
+  user    User?   @relation(fields: [userId], references: [id])
   movieId String
   movie   Movie  @relation(fields: [movieId], references: [id])
 }
@@ -83,16 +84,32 @@ model Movie {
   reviews    Review[]
   // Length of movie in minutes
   length     Int
+  genre      String?
   aired      Boolean
 
   actors  Person[] @relation(name: "MovieActors")
   writers Person[] @relation(name: "MovieWriters")
+
+  views MovieViews[]
 }
 
+model MovieViews {
+  id String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  movieId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+
+  @@unique([userId, movieId])
+
+  @@map(name: "movie_views")
+}
 model Person {
   id        String @id @default(cuid())
   firstName String
   lastName  String
+  dateOfBirth DateTime?
 
   actedMovies   Movie[] @relation(name: "MovieActors")
   writtenMovies Movie[] @relation(name: "MovieWriters")

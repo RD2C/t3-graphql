@@ -13,6 +13,7 @@ type Movie {
   rating: Float
   trailerURL: String
   reviews: [Review]
+  genre: String
   # Length of movie in minutes
   length: Int
   aired: Boolean
@@ -38,8 +39,15 @@ type Person {
   id: ID!
   firstName: String
   lastName: String
+  dateOfBirth: String
   writtenMovies: [Movie]
   actedMovies: [Movie]
+}
+
+
+type WatchlistAddResult {
+  success: Boolean
+  movie: Movie
 }
 
 type Query {
@@ -47,15 +55,11 @@ type Query {
   people(search: String): [Person]
 }
 
-type WatchlistAddResult {
-  success: Boolean
-  movie: Movie
-}
-
 type Mutation {
   #IMDB
   addToWatchlist(movieID: ID): WatchlistAddResult
   reviewMovie(text: String, movieID: ID): Boolean
+  addView(movieID: ID): Boolean
 }
 
 type Subscription {

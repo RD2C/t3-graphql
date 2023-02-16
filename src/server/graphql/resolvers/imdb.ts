@@ -7,10 +7,72 @@ type MovieFilter = {
     hitMoviesOnly: boolean
 }
 
+type MovieArgs = {
+    filter: MovieFilter,
+    sortBy: string[]
+}
+
+type ReviewArgs = {
+    text: string
+    movieID: string
+}
+
+
 const imdb = {
+    Mutation: {
+        async reviewMovie(parent: any, args: ReviewArgs, context: any) {
+            const { text, movieID } = args
+        
+            const review = await prisma.review.create({
+              data: {
+                text,
+                movie: {
+                  connect: { id: movieID }
+                },
+                ...(context.user?.id && { user: { connect: { id: context.user?.id } } })
+              }
+            })
+        
+            return review ? true : false
+        },
+        async addView(parent: any, args: { movieID: string }, context: any) {
+            const { movieID } = args
+            const createdView = await prisma.movieViews.create({
+                data: {
+                    movie: {
+                        connect: { id: movieID }
+                    },
+                    ...(context.user?.id && { user: { connect: { id: context.user?.id } } })
+                },
+            });
+        
+            return createdView ? true : false
+        },
+    },
     Query: {
-        movies: async (parent: undefined, args: MovieFilter) => {
-            const movies = await prisma.movie.findMany();
+        movies: async (parent: undefined, args: MovieArgs) => {
+            const { filter={} as never } = args;
+            const { genre, dateAfter, hitMoviesOnly, search } = filter;
+            const movies = await prisma.movie.findMany({
+                where: {
+                    OR: [{
+                        length: {
+                            gte: 200,
+                        },
+                    }, {
+                        aired: true,
+                    }],
+                    AND: [{
+                        genre: {
+                            in: [genre],
+                        },
+                    }, {
+                        title: {
+                            contains: search, 
+                        },
+                    }]
+                }
+            });
             return movies;
         }
     },
