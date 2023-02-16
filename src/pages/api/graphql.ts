@@ -14,11 +14,6 @@ export const config = {
 const schema = createSchema({
   typeDefs: await loadFiles("src/server/graphql/**/*.graphql"),
   resolvers,
-  // resolvers: {
-  //   Query: {
-  //     greetings: () => "This is the `greetings` field of the root `Query` type",
-  //   },
-  // },
 });
 
 export default createYoga<{

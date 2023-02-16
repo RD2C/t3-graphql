@@ -9,8 +9,9 @@ type MovieFilter = {
 
 const imdb = {
     Query: {
-        movies: (parent: undefined, args: MovieFilter) => {
-            return prisma.movie.findMany();
+        movies: async (parent: undefined, args: MovieFilter) => {
+            const movies = await prisma.movie.findMany();
+            return movies;
         }
     },
     Movie: {
