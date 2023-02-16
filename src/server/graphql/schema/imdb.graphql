@@ -53,6 +53,7 @@ type WatchlistAddResult {
 type Query {
   movies(filter: MovieFilter sortBy: MovieSorting): [Movie]
   movie(id: ID!): Movie
+  person(id: ID!): Person
   people(search: String): [Person]
 }
 

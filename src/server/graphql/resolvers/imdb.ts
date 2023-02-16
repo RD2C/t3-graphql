@@ -50,6 +50,31 @@ const imdb = {
         },
     },
     Query: {
+        people: async (parent: undefined, args: { search?: string }) => {
+            const people = await prisma.person.findMany({
+                where: {
+                    ...(args.search &&{
+                        OR: [{
+                            firstName: {
+                                contains: args.search || '',
+                            }
+                        }, {
+                            lastName: {
+                                contains: args.search || '',
+                            }
+                        }]
+                    }),
+                },
+            });
+            return people;
+        },
+        person: async (parent: undefined, args: { id: string }) => {
+            const { id } = args;
+            const person = await prisma.person.findUnique({
+                where: { id },
+            });
+            return person;
+        },
         movie: async (parent: undefined, args: { id: string }) => {
             const { id } = args;
             const movie = await prisma.movie.findUnique({
