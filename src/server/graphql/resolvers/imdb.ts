@@ -45,32 +45,42 @@ const imdb = {
                     ...(context.user?.id && { user: { connect: { id: context.user?.id } } })
                 },
             });
-        
+
             return createdView ? true : false
         },
     },
     Query: {
+        movie: async (parent: undefined, args: { id: string }) => {
+            const { id } = args;
+            const movie = await prisma.movie.findUnique({
+                where: { id },
+            });
+            return movie;
+        },
         movies: async (parent: undefined, args: MovieArgs) => {
             const { filter={} as never } = args;
             const { genre, dateAfter, hitMoviesOnly, search } = filter;
             const movies = await prisma.movie.findMany({
                 where: {
-                    OR: [{
-                        length: {
-                            gte: 200,
-                        },
-                    }, {
-                        aired: true,
-                    }],
-                    AND: [{
+                    ...(hitMoviesOnly && {
+                        OR: [{
+                            length: {
+                                gte: 200,
+                            },
+                        }, {
+                            aired: true,
+                        }],
+                    }),
+                    ...(genre?.length && {
                         genre: {
                             in: [genre],
                         },
-                    }, {
+                    }),
+                    ...(search && {
                         title: {
                             contains: search, 
                         },
-                    }]
+                    }),
                 }
             });
             return movies;
@@ -83,6 +93,11 @@ const imdb = {
                     where: { id: parent.id || undefined },
                 })
                 .writers()
+        },
+        reviews: (parent: Movie) => {
+            return prisma.movie.findUnique({
+                where: { id: parent.id || undefined },
+            }).reviews();
         }
     }
 }
